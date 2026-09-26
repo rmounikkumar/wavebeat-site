@@ -1,0 +1,82 @@
+/* ============================================================
+   WaveBeat — landing page design tokens
+   Hallmark · macrostructure: Workbench · genre: atmospheric ·
+   theme: app-derived (WaveBeat palette) ·
+   pre-emit critique: P5 H4 E5 S5 R5 V5 ·
+   contrast: pass (40–41) · nav: N5 · footer: Ft5 · slop: pass
+   (42–45, 46, 47, 48, 49) · mobile: pass (34, 49, 50–57)
+   ============================================================ */
+
+:root {
+  /* --- type --- */
+  --font-display: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-body:    "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-outlier: "Geist Mono", ui-monospace, "Cascadia Code", monospace;
+
+  /* --- scale: major-third-ish, fluid via clamp --- */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: clamp(0.95rem, 1.2vw, 1.05rem);
+  --text-lg:   clamp(1.125rem, 2vw, 1.35rem);
+  --text-xl:   clamp(1.5rem, 3vw, 2rem);
+  --text-2xl:  clamp(1.75rem, 4vw, 2.6rem);
+  --text-3xl:  clamp(2.15rem, 6vw, 4rem);
+
+  /* --- space (named scale, rem = 6/12/20/32/56/96 px) --- */
+  --space-xs:  0.375rem;
+  --space-sm:  0.75rem;
+  --space-md:  1.25rem;
+  --space-lg:  2rem;
+  --space-xl:  3.5rem;
+  --space-2xl: 6rem;
+  --page-gutter: clamp(1.25rem, 5vw, 3rem);
+
+  /* --- measure --- */
+  --measure: 65ch;
+
+  /* --- palette (OKLCH, lifted from the WaveBeat app) --- */
+  --color-paper:    oklch(14.7% 0.011 285);   /* #0A0A0F — canvas */
+  --color-paper-2:  oklch(17.7% 0.014 285);   /* #101017 — deep surface */
+  --color-surface:  oklch(21.6% 0.027 284);   /* #181826 — chips, frames */
+  --color-rule:     oklch(29.5% 0.040 284);   /* #2A2A40 — hairlines */
+  --color-ink:      oklch(97% 0.006 285);     /* text primary */
+  --color-muted:    oklch(70% 0.012 270);     /* text secondary */
+  --color-dim:      oklch(61.7% 0.015 286);   /* small labels — 5.3:1 on paper */
+  --color-accent:   oklch(63.3% 0.199 16);    /* #E94560 — the one warm accent */
+  --color-accent-hi:oklch(71.6% 0.181 14);    /* #FF6B81 — accent glow */
+  --color-accent-deep:    oklch(57.8% 0.193 17);  /* #D3354F — button fill, white text 4.8:1 */
+  --color-accent-deep-hi: oklch(52.5% 0.187 18);  /* #BE253E — button press, 6.0:1 */
+  --color-mint:     oklch(82.5% 0.151 179);   /* #00E5C7 — micro-secondary */
+
+  /* --- shadow (lifted to tokens — gate 48) --- */
+  --shadow-nav: 0 8px 24px -12px oklch(0% 0 0 / 0.24);
+  --shadow-shot: 0 24px 60px -30px oklch(0% 0 0 / 0.7);
+  --shadow-shot-hi: 0 30px 72px -32px oklch(0% 0 0 / 0.8);
+  --shadow-cta: 0 12px 32px -16px oklch(0% 0 0 / 0.5);
+
+  /* --- buttons: tactile key (edge + drops — gate 48) --- */
+  --btn-edge:       oklch(44% 0.185 17);   /* key thickness — primary */
+  --btn-edge-ghost: oklch(25% 0.03 284);   /* key thickness — ghost  */
+  --btn-drop:       0 14px 30px -16px oklch(0% 0 0 / 0.65);
+  --btn-drop-hi:    0 20px 40px -20px oklch(0% 0 0 / 0.8);
+  --btn-drop-down:  0 4px 10px -8px oklch(0% 0 0 / 0.55);
+
+  /* --- canvas blooms (alpha-lifted token variants — gate 48) --- */
+  --bloom-accent: oklch(63.3% 0.199 16 / 0.16);
+  --bloom-mint:   oklch(82.5% 0.151 179 / 0.06);
+
+  /* --- motion --- */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:     cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long:  420ms;
+  --dur-reveal: 480ms;
+  --dur-enter:  560ms;
+
+  /* --- chrome --- */
+  --rule-hair: 1px;
+  --radius-md: 12px;
+  --radius-pill: 999px;
+}

@@ -1,0 +1,910 @@
+/* ============================================================
+   WaveBeat landing — Workbench macrostructure, atmospheric genre.
+   Hallmark · macrostructure: Workbench · genre: atmospheric ·
+   theme: app-derived (WaveBeat palette) ·
+   pre-emit critique: P5 H4 E5 S5 R5 V5 ·
+   contrast: pass (40–41) · nav: N5 · footer: Ft5 · slop: pass
+   (42–45, 46, 47, 48, 49) · mobile: pass (34, 49, 50–57)
+   Fade-in only. One orchestrated motion moment (caption unmask).
+   Screenshots load instantly; the type beneath them unmask-reveals.
+   (Motion expanded by request: entrance + scroll reveals, gated by
+   prefers-reduced-motion — collapses to instant, then 150ms crossfades.)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  overflow-x: clip;            /* gate 34 — never hidden */
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: auto; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --- canvas: two diffuse blooms, near-black ground ------------ */
+.canvas {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.canvas::before,
+.canvas::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+}
+
+.canvas::before {                     /* warm bloom, top-left    */
+  width: min(52vw, 620px);
+  height: min(52vw, 620px);
+  top: -18vw;
+  left: -12vw;
+  background: radial-gradient(circle, var(--bloom-accent), transparent 70%);
+}
+
+.canvas::after {                      /* faint mint, bottom-right */
+  width: min(44vw, 520px);
+  height: min(44vw, 520px);
+  bottom: -16vw;
+  right: -12vw;
+  background: radial-gradient(circle, var(--bloom-mint), transparent 70%);
+}
+
+/* --- aurora: react-bits background (JS + WebGL2) --------------
+   The canvas fades in over the blooms once it is confirmed live;
+   the CSS blooms remain as the no-JS / no-WebGL2 fallback, so the
+   page always has a background. */
+#aurora {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  display: block;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.anim.aurora-live #aurora {
+  opacity: 1;   /* final state — the JS loop eases it in over --dur-enter */
+}
+
+.anim.aurora-live body.canvas::before,
+.anim.aurora-live body.canvas::after {
+  opacity: 0;
+}
+
+/* --- links & focus -------------------------------------------- */
+a { color: inherit; }
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-paper);
+}
+
+/* --- skip link (visually hidden until focused) ---------------- */
+.skip-link {
+  position: absolute;
+  left: -100vw;
+  top: var(--space-sm);
+  z-index: 30;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: 1;
+  text-decoration: none;
+  color: var(--color-ink);
+  background: var(--color-paper-2);
+  border: var(--rule-hair) solid var(--color-rule);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill);
+}
+
+.skip-link:focus {
+  left: var(--space-sm);
+}
+
+/* --- shared pieces -------------------------------------------- */
+/* Labels are the BODY face in caps — the mono register is reserved
+   for the wordmark and the hero stat only (gate 38). */
+.eyebrow,
+.panel__no,
+.panel__anno,
+.screenshot__tag,
+.row-no,
+.foot-stmt__meta,
+.sticky-cta__meta {
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.eyebrow {
+  font-size: var(--text-xs);
+  color: var(--color-accent);
+  margin: 0;
+}
+
+.leder-head {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-2xl);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.leder-sub {
+  color: var(--color-muted);
+  max-width: var(--measure);
+  margin: var(--space-sm) 0 0;
+}
+
+/* --- buttons ---------------------------------------------------- */
+/* Tactile keys: a hard bottom "edge" gives the fill thickness; it
+   collapses on press so the button reads physically sunk into the
+   board. Lifts are pointer-precise only; the press snap is snappy
+   (--dur-micro). */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: var(--text-base);
+  line-height: 1;
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+  padding: 0.75rem 1.5rem;
+  min-height: 44px;
+  border: var(--rule-hair) solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    transform var(--dur-micro) var(--ease-out),
+    background-color var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out),
+    color var(--dur-short) var(--ease-out),
+    box-shadow var(--dur-short) var(--ease-out);
+}
+
+/* press — the key sinks: edge collapses, bevel inverts, fill darkens */
+.btn:active {
+  transform: translateY(2px) scale(0.995);
+}
+
+.btn--primary {
+  background: var(--color-accent-deep);
+  color: var(--color-ink);            /* white on deep red — 4.8:1 */
+  box-shadow:
+    inset 0 1px 0 oklch(100% 0 0 / 0.16),   /* top bevel line */
+    inset 0 -2px 5px oklch(0% 0 0 / 0.3),   /* inner bottom shade */
+    0 4px 0 -1px var(--btn-edge),            /* key thickness */
+    var(--btn-drop);
+}
+
+.btn--primary:active {
+  background: var(--color-accent-deep-hi);  /* press darkens — 6.0:1 */
+  box-shadow:
+    inset 0 3px 7px oklch(0% 0 0 / 0.35),
+    0 1px 0 -1px var(--btn-edge),
+    var(--btn-drop-down);
+}
+
+.btn--ghost {
+  background: color-mix(in oklch, var(--color-paper-2) 55%, transparent);
+  border-color: var(--color-rule);
+  color: var(--color-muted);
+  box-shadow:
+    inset 0 1px 0 oklch(100% 0 0 / 0.07),
+    0 2px 0 -1px var(--btn-edge-ghost),
+    var(--btn-drop);
+}
+
+.btn--ghost:active {
+  background: var(--color-surface);
+  border-color: var(--color-accent);
+  color: var(--color-ink);
+  transform: translateY(1px) scale(0.995);
+  box-shadow:
+    inset 0 2px 5px oklch(0% 0 0 / 0.35),
+    0 1px 0 -1px var(--btn-edge-ghost),
+    var(--btn-drop-down);
+}
+
+/* lifts are pointer-precise only — touch keeps the flat press */
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { transform: translateY(-1px); }
+
+  .btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 oklch(100% 0 0 / 0.22),
+      inset 0 -2px 5px oklch(0% 0 0 / 0.24),
+      0 5px 0 -1px var(--btn-edge),
+      var(--btn-drop-hi);
+  }
+
+  .btn--ghost:hover {
+    transform: translateY(-1px);
+    border-color: var(--color-accent);
+    color: var(--color-ink);
+    box-shadow:
+      inset 0 1px 0 oklch(100% 0 0 / 0.1),
+      0 3px 0 -1px var(--btn-edge-ghost),
+      var(--btn-drop-hi);
+  }
+}
+
+/* ============================================================
+   Nav · N5 floating pill
+   ============================================================ */
+.nav-pill {
+  position: fixed;
+  top: calc(var(--space-md) + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 0.5rem 1rem;
+  background: color-mix(in oklch, var(--color-paper) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-nav);
+  white-space: nowrap;
+}
+
+.wordmark {
+  font-family: var(--font-outlier);   /* mono slot 1 of 2 */
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-decoration: none;
+  color: var(--color-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  transition: color var(--dur-short) var(--ease-out);
+}
+
+.wordmark:hover { color: var(--color-accent); }
+
+.wordmark::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--color-accent) 25%, transparent);
+  transition: box-shadow var(--dur-short) var(--ease-out);
+}
+
+.wordmark:hover::before {
+  box-shadow: 0 0 0 5px color-mix(in oklch, var(--color-accent) 28%, transparent);
+}
+
+.nav-pill__links {
+  display: flex;
+  gap: var(--space-md);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-pill__links a {
+  font-size: var(--text-sm);
+  line-height: 1;
+  text-decoration: none;
+  color: var(--color-muted);
+  transition: color var(--dur-micro) var(--ease-out);
+}
+.nav-pill__links a:hover { color: var(--color-ink); }
+
+.nav-pill .btn {
+  padding: 0.5rem 1rem;
+  font-size: var(--text-sm);
+  min-height: 0;
+}
+
+/* entrance — the pill settles down after first paint (JS adds .hero-ready) */
+.anim:not(.hero-ready) .nav-pill {
+  opacity: 0;
+  transform: translate(-50%, -12px);
+}
+
+.anim.hero-ready .nav-pill {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition:
+    opacity var(--dur-enter) var(--ease-out) 120ms,
+    transform var(--dur-enter) var(--ease-out) 120ms;
+}
+
+@media (max-width: 34rem) {           /* pill stays content-sized */
+  .nav-pill { gap: var(--space-sm); }
+  .nav-pill__links { display: none; }
+}
+
+/* ============================================================
+   Hero — small, functional. Workbench pages don't shout.
+   ============================================================ */
+.hero {
+  min-height: 88dvh;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--space-xl) + var(--space-lg)) var(--page-gutter) calc(var(--space-xl) + var(--space-2xl));
+  text-align: center;
+}
+
+.hero__inner {
+  max-width: 44rem;
+  display: grid;
+  gap: var(--space-md);
+  justify-items: center;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-3xl);
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.hero p.leder-sub { margin-inline: auto; }
+
+.hero__meta {                          /* mono slot 2 of 2 — the hero stat */
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-outlier);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  color: var(--color-dim);
+  text-transform: none;
+  margin-top: var(--space-sm);
+}
+
+.hero__meta span + span::before {
+  content: "·";
+  margin-right: var(--space-sm);
+  color: var(--color-rule);
+}
+
+.hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  justify-content: center;
+  align-items: center;
+}
+
+.hero__hint {
+  font-size: var(--text-sm);
+  color: var(--color-dim);
+  margin: 0;
+  max-width: 34rem;
+}
+
+/* entrance — hero rises in after first paint, one beat apart */
+.anim:not(.hero-ready) .hero__inner > * {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.anim.hero-ready .hero__inner > * {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--dur-enter) var(--ease-out),
+    transform var(--dur-enter) var(--ease-out);
+}
+
+.anim.hero-ready .hero__inner > *:nth-child(2) { transition-delay: 80ms; }
+.anim.hero-ready .hero__inner > *:nth-child(3) { transition-delay: 160ms; }
+.anim.hero-ready .hero__inner > *:nth-child(4) { transition-delay: 240ms; }
+.anim.hero-ready .hero__inner > *:nth-child(5) { transition-delay: 320ms; }
+.anim.hero-ready .hero__inner > *:nth-child(6) { transition-delay: 400ms; }
+
+/* ============================================================
+   Workbench body — screenshot panels are the page
+   ============================================================ */
+.workbench {
+  padding: var(--space-2xl) var(--page-gutter);
+  display: grid;
+  gap: var(--space-2xl);
+}
+
+.panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+.panel--flip .panel__media { order: 2; }
+
+.panel__media {
+  display: grid;
+  justify-items: center;
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out);
+}
+
+.anim .panel:not(.in-view) .panel__media {
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.screenshot {
+  position: relative;
+  width: min(100%, 360px);
+}
+
+.screenshot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-md);
+  background: var(--color-paper-2);
+  box-shadow: var(--shadow-shot);
+  transition:
+    transform var(--dur-reveal) var(--ease-out),
+    border-color var(--dur-reveal) var(--ease-out),
+    box-shadow var(--dur-reveal) var(--ease-out);
+}
+
+.screenshot__tag {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.5rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--color-paper);          /* dark on accent — 5.2:1 */
+  background: var(--color-accent);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-pill);
+}
+
+/* hover lift for precise pointers; touch keeps instant-load screenshots */
+@media (hover: hover) and (pointer: fine) {
+  .screenshot:hover img {
+    transform: translateY(-4px);
+    border-color: color-mix(in oklch, var(--color-accent) 45%, var(--color-rule));
+    box-shadow: var(--shadow-shot-hi);
+  }
+}
+
+.panel__notes {
+  display: grid;
+  gap: var(--space-sm);
+  justify-items: start;
+}
+
+.panel__no {
+  font-size: var(--text-sm);
+  letter-spacing: 0.1em;
+  color: var(--color-dim);
+  margin: 0;
+}
+
+/* caption unmask-reveal */
+.panel__caption {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-xl);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.anim .panel__caption > span,
+.anim .panel__detail,
+.anim .panel__anno {
+  display: block;
+  opacity: 0;
+  clip-path: inset(0 100% 0 0);
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    clip-path var(--dur-reveal) var(--ease-out);
+}
+
+.anim .panel.in-view .panel__caption > span,
+.anim .panel.in-view .panel__detail,
+.anim .panel.in-view .panel__anno {
+  opacity: 1;
+  clip-path: inset(0 0 0 0);
+}
+
+.panel__detail {
+  color: var(--color-muted);
+  max-width: 46ch;
+  margin: 0;
+}
+
+.panel__anno {
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  color: var(--color-dim);
+  margin: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  max-width: 45ch;
+  text-align: left;
+}
+
+.panel__anno::before { content: "↳"; color: var(--color-accent); }
+
+/* scroll reveal — section heads and the closing line rise in once */
+[data-reveal] {
+  transition:
+    opacity var(--dur-reveal) var(--ease-out),
+    transform var(--dur-reveal) var(--ease-out);
+}
+
+.anim [data-reveal]:not(.in-view) {
+  opacity: 0;
+  transform: translateY(18px);
+}
+
+/* ============================================================
+   Ledger lists (features · install) — no cards, no 3-col grid
+   ============================================================ */
+.ledger {
+  padding: var(--space-2xl) var(--page-gutter);
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.ledger__head {
+  display: grid;
+  gap: var(--space-sm);
+  justify-items: start;
+}
+
+.ledger__rows {
+  display: grid;
+  border-top: var(--rule-hair) solid var(--color-rule);
+  max-width: 56rem;
+}
+
+.ledger__row {
+  display: grid;
+  grid-template-columns: minmax(0, 3.5rem) minmax(0, 1fr);
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+}
+
+.row-no {
+  font-size: var(--text-sm);
+  letter-spacing: 0.1em;
+  color: var(--color-accent);
+  padding-top: 0.25rem;
+}
+
+.ledger__row h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-lg);
+  letter-spacing: -0.01em;
+  margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.ledger__row p {
+  margin: 0.25rem 0 0;
+  color: var(--color-muted);
+  max-width: 46ch;
+}
+
+.ledger__row code {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-ink);
+}
+
+/* ============================================================
+   Diff — WaveBeat vs the store apps (why it's different)
+   ============================================================ */
+.diff {
+  padding: var(--space-2xl) var(--page-gutter);
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.diff__rows {
+  display: grid;
+  border-top: var(--rule-hair) solid var(--color-rule);
+  max-width: 56rem;
+}
+
+.diff__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-md);
+  padding: var(--space-md) 0;
+  border-bottom: var(--rule-hair) solid var(--color-rule);
+}
+
+.diff__them {
+  margin: 0;
+  color: var(--color-dim);
+  max-width: 40ch;
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in oklch, var(--color-rule) 55%, transparent);
+  text-decoration-thickness: 1px;
+}
+
+.diff__us {
+  margin: 0;
+  color: var(--color-ink);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-xs);
+  max-width: 46ch;
+}
+
+.diff__us::before {
+  content: "↳";
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+/* --- Warp heading (react-bits WarpText, ported to CSS) --------
+   Characters ride a travelling wave with a chromatic fringe while
+   hovered. Fine pointers only; touch and reduced motion stay flat. */
+.warp {
+  --wt-amp: -0.16em;
+  --wt-freq: 0.55;
+  --wt-rot: 2.2deg;
+  display: inline-block;
+}
+
+.wt-ch {
+  display: inline-block;
+  white-space: pre;
+}
+
+.wt-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .warp .wt-ch {
+    will-change: transform;
+    transition:
+      transform var(--dur-short) var(--ease-out),
+      text-shadow var(--dur-short) var(--ease-out);
+    transform: translateY(0);
+    transition-delay: calc((var(--count) - var(--i)) * 14ms);
+  }
+
+  .warp:hover .wt-ch {
+    transform:
+      translateY(calc(var(--wt-amp) * sin(calc(var(--i) * var(--wt-freq) * 1rad))))
+      rotate(calc(var(--wt-rot) * sin(calc(var(--i) * var(--wt-freq) * 1rad + 1.6rad))));
+    text-shadow:
+      0.045em 0 var(--color-mint),
+      -0.045em 0 var(--color-accent);
+    transition-delay: calc(var(--i) * 14ms);
+  }
+}
+
+/* ============================================================
+   Sticky CTA — appears after the hero is scrolled past
+   ============================================================ */
+.sticky-cta {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--space-md) + env(safe-area-inset-bottom, 0px));
+  transform: translate(-50%, calc(100% + var(--space-lg)));
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: 0.5rem 0.75rem 0.5rem 1rem;
+  background: color-mix(in oklch, var(--color-paper-2) 78%, transparent);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border: var(--rule-hair) solid var(--color-rule);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-cta);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dur-long) var(--ease-out),
+    opacity var(--dur-long) var(--ease-out);
+  white-space: nowrap;
+}
+
+.sticky-cta--on {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+/* hide when the footer is on screen — never covers the bottom text */
+.sticky-cta--off {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, calc(100% + var(--space-lg)));
+}
+
+.sticky-cta__meta {
+  display: grid;
+  gap: 0;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+}
+
+.sticky-cta__meta b {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  letter-spacing: 0.02em;
+  color: var(--color-ink);
+}
+
+.sticky-cta__meta span {
+  font-size: 0.68rem;
+  color: var(--color-dim);
+  letter-spacing: 0.04em;
+  font-weight: 400;
+}
+
+.sticky-cta .btn { padding: 0.75rem 1.25rem; font-size: var(--text-sm); }
+
+@media (max-width: 30rem) {
+  .sticky-cta__meta { display: none; }
+}
+
+/* ============================================================
+   Footer · Ft5 Statement
+   ============================================================ */
+.foot-stmt {
+  padding: var(--space-2xl) var(--page-gutter) var(--space-xl);
+  display: grid;
+  gap: var(--space-lg);
+  margin-top: var(--space-2xl);
+}
+
+.foot-stmt__line {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.75rem, 5vw, 3.25rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  max-width: 22ch;
+  margin: 0;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+.foot-stmt__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  padding-block-start: var(--space-sm);
+  border-top: var(--rule-hair) solid var(--color-rule);
+  font-size: var(--text-xs);
+  letter-spacing: 0.06em;
+  color: var(--color-dim);
+  text-transform: uppercase;
+}
+
+.foot-stmt__meta a {
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-rule);
+  text-decoration-thickness: 1px;
+  transition:
+    color var(--dur-short) var(--ease-out),
+    text-decoration-color var(--dur-short) var(--ease-out);
+}
+
+.foot-stmt__meta a:hover {
+  color: var(--color-accent);
+  text-decoration-color: var(--color-accent);
+}
+
+/* credit sits on the right, clear of the centred download bar */
+.foot-stmt__meta > span:last-child {
+  margin-inline-start: auto;
+  text-align: right;
+}
+
+/* ============================================================
+   Responsive — mobile floor
+   ============================================================ */
+@media (max-width: 48rem) {
+  .panel { grid-template-columns: minmax(0, 1fr); gap: var(--space-md); }
+  .panel--flip .panel__media { order: 0; }
+  .panel__media { justify-items: stretch; }
+  .screenshot { width: min(100%, 320px); margin-inline: auto; }
+  .panel__notes { padding-inline: 0; }
+  .hero { min-height: 86dvh; padding-top: calc(var(--space-xl) + var(--space-lg)); }
+  .workbench { gap: var(--space-xl); padding-inline: var(--page-gutter); }
+  .diff__row { grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); }
+}
+
+/* ============================================================
+   Reduced motion — collapse to opacity crossfade, ≤150ms
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 150ms !important;
+  }
+  /* content present, no movement — reveals collapse to instant */
+  .anim .nav-pill { opacity: 1 !important; }
+  .anim .btn { transform: none !important; }
+  .anim .panel__media,
+  .anim [data-reveal],
+  .anim .hero__inner > * {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .anim .panel__caption > span,
+  .anim .panel__detail,
+  .anim .panel__anno {
+    opacity: 1 !important;
+    clip-path: none !important;
+  }
+  .anim .wt-ch {
+    transform: none !important;
+    text-shadow: none !important;
+  }
+}
