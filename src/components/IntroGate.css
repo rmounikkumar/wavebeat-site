@@ -41,6 +41,10 @@
   height: 100%;
   z-index: 1;
   cursor: grab;
+  /* Without this the browser claims the touch for scrolling/zooming and the
+     card never follows the finger. */
+  touch-action: none;
+  overscroll-behavior: none;
 }
 
 .lanyard-gate[data-dragging='true'] .lanyard-wrapper {

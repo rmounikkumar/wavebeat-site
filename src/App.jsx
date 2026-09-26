@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
 import Aurora from './components/Aurora.jsx';
 import WarpText from './components/WarpText.jsx';
@@ -42,6 +42,13 @@ function Panel({ no, name, img, alt, caption, detail, anno, eager, first, flip }
 }
 
 export default function App() {
+  // The intro covers the page with an opaque screen, so the page's own aurora
+  // would be a full-screen shader drawing nothing you can see — and on a phone
+  // that is real frame time. It starts when the intro reveals instead.
+  const [needsIntro] = useState(() => !introSeen());
+  const [auroraOn, setAuroraOn] = useState(() => introSeen());
+  const startAurora = useCallback(() => setAuroraOn(true), []);
+
   useEffect(() => {
     const root = document.documentElement;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -107,7 +114,7 @@ export default function App() {
 
   return (
     <>
-      {!introSeen() && (
+      {needsIntro && (
         <Suspense
           fallback={
             <div className="lanyard-gate lanyard-gate--loading">
@@ -115,11 +122,11 @@ export default function App() {
             </div>
           }
         >
-          <IntroGate />
+          <IntroGate onReveal={startAurora} />
         </Suspense>
       )}
 
-      <Aurora />
+      {auroraOn && <Aurora />}
 
       <a className="skip-link" href="#main">Skip to content</a>
 

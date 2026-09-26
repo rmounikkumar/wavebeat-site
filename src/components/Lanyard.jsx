@@ -37,6 +37,24 @@ const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
 const CARD_MODEL = asset('lanyard/card.glb');
 const BAND_TEXTURE = asset('lanyard/lanyard.png');
 
+// The card's rendered size in world units: card.glb's POSITION accessor spans
+// 0.716 × 1.0, times the group's 2.25 scale below. Measured, not guessed — the
+// camera fit depends on it.
+const CARD_SIZE = { w: 1.612, h: 2.25 };
+
+// How much of the viewport the card should fill. Height is the useful limit on
+// a wide screen; a phone in portrait is far too narrow for a height-only fit
+// (the card would run off both edges), so width gets its own, looser limit.
+const CARD_FILL = { h: 0.49, w: 0.66 };
+
+// How far back the camera has to sit for the card to fit the viewport at all.
+function fitDistance(fovDeg, aspect) {
+  const half = Math.tan((fovDeg * Math.PI) / 360);
+  const byHeight = CARD_SIZE.h / (2 * half * CARD_FILL.h);
+  const byWidth = CARD_SIZE.w / (2 * half * Math.max(aspect, 0.3) * CARD_FILL.w);
+  return Math.max(byHeight, byWidth);
+}
+
 export default function Lanyard({
   position = [0, 0, 20],
   gravity = [0, -40, 0],
@@ -53,19 +71,36 @@ export default function Lanyard({
   const [isMobile, setIsMobile] = useState(
     () => typeof window !== 'undefined' && window.innerWidth < 768
   );
+  const [aspect, setAspect] = useState(() =>
+    typeof window === 'undefined' ? 1.6 : window.innerWidth / Math.max(1, window.innerHeight)
+  );
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setAspect(window.innerWidth / Math.max(1, window.innerHeight));
+    };
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
+
+  // position[2] is the framing distance; the fit only ever pushes the camera
+  // further back, when the viewport is too narrow to hold the card at it.
+  const distance = useMemo(
+    () => Math.max(position[2], fitDistance(fov, aspect)),
+    [position[2], fov, aspect]
+  );
 
   return (
     <div className="lanyard-wrapper">
       <Canvas
-        camera={{ position: position, fov: fov }}
-        dpr={[1, isMobile ? 1.5 : 2]}
-        gl={{ alpha: transparent }}
+        camera={{ position: [position[0], position[1], distance], fov: fov }}
+        dpr={[1, isMobile ? 1.25 : 2]}
+        gl={{ alpha: transparent, antialias: !isMobile, powerPreference: 'high-performance' }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}
       >
         <ambientLight intensity={Math.PI} />
@@ -80,7 +115,7 @@ export default function Lanyard({
             onRelease={onRelease}
           />
         </Physics>
-        <Environment blur={0.75}>
+        <Environment blur={0.75} resolution={isMobile ? 128 : 256}>
           <Lightformer
             intensity={2}
             color="white"
@@ -333,14 +368,20 @@ function Band({
             }}
           >
             <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial
-                map={cardMap}
-                map-anisotropy={16}
-                clearcoat={isMobile ? 0 : 1}
-                clearcoatRoughness={0.15}
-                roughness={0.9}
-                metalness={0.8}
-              />
+              {/* Physical shading with a clearcoat costs real fill rate on a
+                  phone, and the intro drops the clearcoat there anyway. */}
+              {isMobile ? (
+                <meshStandardMaterial map={cardMap} map-anisotropy={4} roughness={0.9} metalness={0.8} />
+              ) : (
+                <meshPhysicalMaterial
+                  map={cardMap}
+                  map-anisotropy={16}
+                  clearcoat={1}
+                  clearcoatRoughness={0.15}
+                  roughness={0.9}
+                  metalness={0.8}
+                />
+              )}
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />

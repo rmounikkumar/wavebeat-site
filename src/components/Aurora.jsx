@@ -24,6 +24,11 @@ export default function Aurora({ id = null }) {
       lightMode: false
     };
 
+    // The aurora is a soft gradient drawn full-screen every frame, so its cost
+    // is pure fill rate. On touch devices 1x is indistinguishable once CSS
+    // scales it back up, and it is a quarter of the fragments of 2x.
+    const MAX_DPR = window.matchMedia('(pointer: coarse)').matches ? 1 : 2;
+
     let gl;
     try {
       gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: true });
@@ -103,7 +108,7 @@ export default function Aurora({ id = null }) {
     gl.uniform1f(U.lightMode, AURORA.lightMode ? 1 : 0);
 
     function resize() {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
       const w = Math.max(1, Math.round(window.innerWidth * dpr));
       const h = Math.max(1, Math.round(window.innerHeight * dpr));
       if (canvas.width !== w || canvas.height !== h) {

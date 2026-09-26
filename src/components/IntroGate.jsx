@@ -18,7 +18,7 @@ function seenThisSession() {
 // Full-screen intro: the site opens on the lanyard card, and dragging the card
 // (or pressing Esc / "skip intro") fades the gate away and reveals the hero.
 // Dismissal is remembered for the rest of the browser session.
-export default function IntroGate() {
+export default function IntroGate({ onReveal = null }) {
   const [phase, setPhase] = useState(() => (seenThisSession() ? 'gone' : 'in'));
   const [dragging, setDragging] = useState(false);
   const skipRef = useRef(null);
@@ -28,13 +28,14 @@ export default function IntroGate() {
   const reveal = useCallback(() => {
     if (phaseRef.current !== 'in') return;
     setPhase('out');
+    onReveal?.();
     try {
       window.sessionStorage.setItem(SEEN_KEY, '1');
     } catch {
       /* private mode — intro just shows again next load */
     }
     window.setTimeout(() => setPhase('gone'), FADE_MS);
-  }, []);
+  }, [onReveal]);
 
   // Esc skips, the site behind stays scroll-locked until the gate is gone.
   useEffect(() => {
