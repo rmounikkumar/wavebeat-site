@@ -13,6 +13,8 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 
 import * as THREE from 'three';
+
+import { asset } from '../paths.js';
 import './Lanyard.css';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
@@ -30,9 +32,10 @@ const FRONT_UV_RECT = { x: 0, y: 0, w: 0.5, h: 0.755 };
 const BACK_UV_RECT = { x: 0.5, y: 0, w: 0.5, h: 0.757 };
 
 // Assets live in /public so the 2.4 MB card.glb never passes through the
-// bundler or the dev-server file watcher.
-const CARD_MODEL = '/assets/lanyard/card.glb';
-const BAND_TEXTURE = '/assets/lanyard/lanyard.png';
+// bundler or the dev-server file watcher. asset() keeps them correct when the
+// site is served from a sub-path (GitHub Pages).
+const CARD_MODEL = asset('lanyard/card.glb');
+const BAND_TEXTURE = asset('lanyard/lanyard.png');
 
 export default function Lanyard({
   position = [0, 0, 20],

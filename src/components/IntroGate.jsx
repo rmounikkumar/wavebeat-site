@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import Aurora from './Aurora.jsx';
 import Lanyard from './Lanyard.jsx';
+import { asset } from '../paths.js';
 
 const SEEN_KEY = 'wavebeat:intro-seen';
 const FADE_MS = 560;
@@ -63,8 +64,8 @@ export default function IntroGate() {
       <Lanyard
         position={[0, 0, 13]}
         gravity={[0, -40, 0]}
-        frontImage="/assets/lanyard/card-front.png"
-        backImage="/assets/lanyard/card-back.png"
+        frontImage={asset('lanyard/card-front.png')}
+        backImage={asset('lanyard/card-back.png')}
         imageFit="cover"
         lanyardWidth={1.6}
         onRelease={reveal}

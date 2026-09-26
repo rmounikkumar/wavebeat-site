@@ -62,6 +62,7 @@ src/components/Lanyard.jsx react-bits lanyard port (rapier joints, drag to revea
 src/components/Lanyard.css react-bits lanyard base styles
 src/components/WarpText.jsx  split heading (react-bits warp feel, CSS port)
 src/data.jsx               all page content (panels, rows) — edit copy here, not in markup
+src/paths.js               base-aware URLs for runtime assets (screenshots, card model/faces)
 css/tokens.css             design tokens (OKLCH palette lifted from the app) — unchanged
 css/style.css              page styles (Workbench macrostructure) — unchanged
 public/assets/lanyard/     card.glb + band texture (react-bits) + the two themed card faces
@@ -71,23 +72,25 @@ public/assets/screenshots/ real device captures (1080×2400), served at /assets/
 Screenshots were captured from a running build of the app — Home, Library, the long-press
 quick menu, the synced-lyrics player, the Audio Enhancement equalizer, and Settings.
 
-## Deploying to Vercel (free)
+## Deploying — GitHub Pages (live)
 
-Vercel auto-detects the Vite setup — no config file needed. It runs `npm run build` and serves
-the `dist/` output.
+The site is published by `.github/workflows/deploy.yml`: every push to `main` runs
+`npm run build` and publishes `dist/` to **https://rmounikkumar.github.io/wavebeat-site/**.
 
-### Option A — GitHub (recommended)
+Because Pages serves from the `/wavebeat-site/` sub-path, `vite.config.js` sets
+`base: '/wavebeat-site/'` for production builds, and runtime asset URLs in
+`src/data.jsx`, `Lanyard.jsx` and `IntroGate.jsx` go through `asset()` in
+`src/paths.js` (which prefixes `import.meta.env.BASE_URL`). If you move to a
+custom domain, set `SITE_BASE=/` for the build (repo Settings → Pages → custom
+domain, plus `SITE_BASE=/ npm run build`) — no other change needed.
 
-1. Push this folder to a GitHub repo (e.g. `rmounikkumar/wavebeat-site`).
-2. On [vercel.com](https://vercel.com) → **Add New → Project** → import that repo.
-3. Vercel auto-detects **Vite** (build `npm run build`, output `dist`). Deploy.
-4. You get `wavebeat-site.vercel.app` plus per-branch preview URLs.
+To deploy by hand: `npm run build`, then push `dist/` to the `gh-pages` branch
+(or set the Pages source to that branch).
 
-### Option B — CLI (no git)
+### Vercel / Netlify (alternative)
 
-1. Install the Vercel CLI: `npm i -g vercel`
-2. In this folder run `vercel` — it asks a few questions (project name, `./` as root) and
-   deploys, or `vercel --prod` to go straight to production.
+Both auto-detect the Vite setup — build `npm run build`, output `dist`. Because
+they serve from a domain root, build with `SITE_BASE=/ npm run build`.
 
 *Keep the APK on GitHub either way* — the page only links to it.
 

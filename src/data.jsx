@@ -1,6 +1,8 @@
 // All page content — plain text and structure, unchanged from the original
 // markup. Edit copy here, not in the components.
 
+import { asset } from './paths.js';
+
 export const DL =
   'https://github.com/rmounikkumar/wavebeat-with-lyrics/releases/latest/download/WaveBeat.apk';
 
@@ -14,7 +16,7 @@ export const PANELS = [
   {
     no: '01',
     name: 'Home',
-    img: '/assets/screenshots/home.png',
+    img: asset('screenshots/home.png'),
     alt: 'WaveBeat home screen: a grid of album tiles for the songs on the device, with a search icon and Home, Library, Audio and Settings tabs.',
     caption: 'Open it. Your library’s already there.',
     detail: 'Every song on this device shows up on the Home grid the moment you open the app. Nothing to import, nothing to sign into.',
@@ -25,7 +27,7 @@ export const PANELS = [
   {
     no: '02',
     name: 'Library',
-    img: '/assets/screenshots/library.png',
+    img: asset('screenshots/library.png'),
     alt: 'WaveBeat library: the full list of songs on the device, with search and per-tab navigation.',
     caption: 'Find anything you own, fast.',
     detail: 'Search by title or artist, and hop between the Songs, Playlists and Favorites tabs without losing your place.',
@@ -35,7 +37,7 @@ export const PANELS = [
   {
     no: '03',
     name: 'Long-press',
-    img: '/assets/screenshots/menu.png',
+    img: asset('screenshots/menu.png'),
     alt: 'The long-press quick menu on a song: Play next, Add to playlist, Remove from favorites, and Delete.',
     caption: 'Hold a song. Pick what happens next.',
     detail: 'Play it next, add it to a playlist, favorite it, or delete it — the menu opens right there on the row, no page-turning.',
@@ -44,7 +46,7 @@ export const PANELS = [
   {
     no: '04',
     name: 'Lyrics',
-    img: '/assets/screenshots/lyrics.png',
+    img: asset('screenshots/lyrics.png'),
     alt: 'The WaveBeat player with the lyrics panel open: synced lines scroll with the music.',
     caption: 'Slide the lyrics open. The words follow the music.',
     detail: 'Tap the lyrics button and synced lines scroll line-by-line with the beat — English, Hindi, whatever’s available, fetched live.',
@@ -54,7 +56,7 @@ export const PANELS = [
   {
     no: '05',
     name: 'Audio',
-    img: '/assets/screenshots/audio.png',
+    img: asset('screenshots/audio.png'),
     alt: 'WaveBeat Audio Enhancement: equalizer presets Flat, Pop, Rock, Jazz, Bass Boost, Treble and Vocal, plus 8D Rotation, 3D Virtualizer, Bass Boost, Reverb and Loudness switches.',
     caption: 'Every song has an EQ it loves.',
     detail: 'Seven presets — Flat, Pop, Rock, Jazz, Bass Boost, Treble, Vocal — apply the moment you tap them. Layer on 8D rotation, 3D virtualizer, reverb or loudness, then set the strength with one slider.',
@@ -63,7 +65,7 @@ export const PANELS = [
   {
     no: '06',
     name: 'Settings',
-    img: '/assets/screenshots/settings.png',
+    img: asset('screenshots/settings.png'),
     alt: 'WaveBeat Settings: Auto-Enhance plus tweaks for the animated logo, auto-next track, auto-resume, track and nav-bar haptics, keep-screen-awake and online lyrics.',
     caption: 'Set it once. It remembers the rest.',
     detail: 'Auto-resume where you left off, pause after a track, keep the screen awake, feel haptics on every tap — and let Auto-Enhance suggest the right EQ preset for each song.',
