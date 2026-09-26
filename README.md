@@ -30,6 +30,13 @@ browser session (`sessionStorage`), so it only ever appears once per visit.
 The intro is code-split (`React.lazy`) because three.js + rapier are ~1 MB gzipped — the page
 itself stays at ~52 kB gzipped, and returning visitors never download the 3D chunk at all.
 
+The camera fits the card to the viewport rather than using one fixed distance: it sits at the
+`position` distance on a wide screen and only moves further back when the viewport is too narrow
+to hold the card, so a phone in portrait gets the same composition (and re-fits on rotate). On
+coarse-pointer devices the intro also drops its cost: canvas dpr 1.25, no MSAA, a standard
+material instead of the clearcoat one, and the page's own aurora is left unmounted until the
+intro reveals (it would otherwise draw a full-screen shader behind the gate's opaque screen).
+
 | Piece | Where |
 | --- | --- |
 | Card model | `public/assets/lanyard/card.glb` (react-bits) |
