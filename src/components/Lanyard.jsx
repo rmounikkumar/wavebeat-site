@@ -133,8 +133,6 @@ function Band({
     j3 = useRef(),
     card = useRef();
   const vec = new THREE.Vector3(),
-    ang = new THREE.Vector3(),
-    rot = new THREE.Vector3(),
     dir = new THREE.Vector3();
   const segmentProps = {
     type: 'dynamic',
@@ -238,16 +236,24 @@ function Band({
   }, [hovered, dragged]);
 
   useFrame((state, delta) => {
+    // A backgrounded tab pauses rAF; on resume rapier takes one enormous step,
+    // which can push the joints to NaN and poison the band geometry (three then
+    // logs "Computed radius is NaN"). Clamp the frame delta and never write
+    // non-finite values into the rope.
+    const dt = Math.min(delta, 1 / 30);
+
     if (dragged) {
       vec.set(state.pointer.x, state.pointer.y, 0.5).unproject(state.camera);
       dir.copy(vec).sub(state.camera.position).normalize();
       vec.add(dir.multiplyScalar(state.camera.position.length()));
-      [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
-      card.current?.setNextKinematicTranslation({
-        x: vec.x - dragged.x,
-        y: vec.y - dragged.y,
-        z: vec.z - dragged.z
-      });
+      if (Number.isFinite(vec.x) && Number.isFinite(vec.y) && Number.isFinite(vec.z)) {
+        [card, j1, j2, j3, fixed].forEach((ref) => ref.current?.wakeUp());
+        card.current?.setNextKinematicTranslation({
+          x: vec.x - dragged.x,
+          y: vec.y - dragged.y,
+          z: vec.z - dragged.z
+        });
+      }
     }
     if (fixed.current) {
       [j1, j2].forEach((ref) => {
@@ -259,17 +265,22 @@ function Band({
         );
         ref.current.lerped.lerp(
           ref.current.translation(),
-          delta * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
+          dt * (minSpeed + clampedDistance * (maxSpeed - minSpeed))
         );
       });
       curve.points[0].copy(j3.current.translation());
       curve.points[1].copy(j2.current.lerped);
       curve.points[2].copy(j1.current.lerped);
       curve.points[3].copy(fixed.current.translation());
-      band.current.geometry.setPoints(curve.getPoints(isMobile ? 16 : 32));
-      ang.copy(card.current.angvel());
-      rot.copy(card.current.rotation());
-      card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      const points = curve.getPoints(isMobile ? 16 : 32);
+      if (points.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z))) {
+        band.current.geometry.setPoints(points);
+      }
+      const ang = card.current.angvel();
+      const rot = card.current.rotation();
+      if (Number.isFinite(ang.x + ang.y + ang.z + rot.x + rot.y + rot.z)) {
+        card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z });
+      }
     }
   });
 
