@@ -233,7 +233,7 @@ export default function App() {
         <p className="foot-stmt__line" data-reveal="">Made for the music you already own.</p>
         <div className="foot-stmt__meta">
           <span>WaveBeat</span>
-          <span>© 2026 · <a href="https://github.com/rmounikkumar/wavebeat-with-lyrics">github.com/rmounikkumar/wavebeat-with-lyrics</a> · Free · Android · APK on GitHub</span>
+          <span>© 2026 · <a href="https://github.com/rmounikkumar/wavebeat-with-lyrics">github.com/rmounikkumar/wavebeat-with-lyrics</a> · <a href="https://rmounikkumar.github.io/wavebeat-site/">rmounikkumar.github.io/wavebeat-site</a> · Free · Android · APK on GitHub</span>
         </div>
       </footer>
     </>
